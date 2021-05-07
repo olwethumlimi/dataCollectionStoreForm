@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="mycss.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Data Collection form</h1>
+        <div class="logo">please enter a word and how bad , normal or good it's, you can insert as many as you want
+        </div>
+
+        <div class="box">
+            <label for="">word in your language</label>
+            <input type="text" placeholder="bad" id="word">
+            <label class="error   error_word"></label>
+        </div>
+
+        <div class="box">
+            <label for="">language</label>
+            <input type="text" placeholder="english,swati,zulu,pedi....." id="language">
+            <label class="error error_language"></label>
+        </div>
+        <div class="box">
+            <label for="">word scale</label>
+            <select name="" id="pola">
+                <option value="select scale">select scale</option>
+                <option value="normal">normal</option>
+                <option value="bad">bad</option>
+                <option value="very bad">very bad</option>
+                <option value="very very bad">very very bad</option>
+                <option value="good">good</option>
+                <option value="very good">very good</option>
+                <option value="very very good">very very good</option>
+            </select>
+            <label class="error   error_polarity"></label>
+        </div>
+
+        <div class="box">
+            
+            <button id="submit">Submit</button>
+            <label id="number">number of words stored : 0</label>
+        </div>
+
+      
+
+        <div class="box">
+        </div id="f">
+        <div style="color: rgb(126, 128, 126);text-align: center;">
+            <small> &copy;2021 dataCollection</small>
+        </div>
+    </div>
+
+    </div>
+    </div>
+
+    <script src="./jquery.js"></script>
+    <script>
+        var thank_you=0;
+        $(document).ready(() => {
+
+            $.get("fetch.php",(data)=>{
+                console.log(data)
+                $("#number").html("number of words stored :"+data["number"])
+            },"json")
+            var data = { word: "", language: "", polarity: "" }
+
+            $("#word").on("change keyup keydown keypress", () => {
+                data["word"] = $("#word").val();
+                $(".error_word").html("");
+            })
+            $("#language").on("change keyup keydown keypress", () => {
+                $(".error_language").html("");
+                data["language"] = $("#language").val();
+            })
+            $("#pola").change((event) => {
+                var optionSelected = event.target.value
+                data["polarity"] = optionSelected
+                $(".error_polarity").html("");
+
+            })
+
+            var error = 0;
+            $("#submit").click(() => {
+                data["language"] = $("#language").val();
+                data["word"] = $("#word").val();
+                if (data.word.trim().length == 0) {
+                    $(".error_word").html("word required");
+                    error = 1
+                }
+
+                if (data.language.trim().length == 0) {
+                    $(".error_language").html("language required");
+                    error = 1
+                }
+
+                if (data.polarity.trim().length == 0 || data.polarity == "select scale") {
+                    $(".error_polarity").html("select the word scale");
+                    error = 1
+                }
+
+                if (error === 1) return false;
+
+
+                $.post("insert.php", data, (data, status) => {
+                    if ("number" in data) {
+                        $("#word").val("");
+                        $("#language").val("");
+                         if(thank_you==0){
+                            alert("thank you , enter more words as possible as you can")
+                         }
+                         $("#number").html("number of words stored :"+data["number"])
+                        thank_you++;
+
+                    }
+                }, "json")
+
+            })
+
+
+        })
+    </script>
+</body>
+
+</html>
